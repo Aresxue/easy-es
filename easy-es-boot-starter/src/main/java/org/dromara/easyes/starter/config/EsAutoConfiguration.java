@@ -1,5 +1,6 @@
 package org.dromara.easyes.starter.config;
 
+import javax.annotation.PostConstruct;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -8,6 +9,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.dromara.easyes.common.utils.ExceptionUtils;
 import org.dromara.easyes.common.utils.RestHighLevelClientBuilder;
 import org.dromara.easyes.common.utils.StringUtils;
+import org.elasticsearch.client.HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -24,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.util.ReflectionUtils;
 
 import static org.dromara.easyes.common.constants.BaseEsConstants.COLON;
+import static org.dromara.easyes.common.constants.BaseEsConstants.DEFAULT_BUFFER_LIMIT;
 import static org.dromara.easyes.common.constants.BaseEsConstants.DEFAULT_SCHEMA;
 
 /**
@@ -41,6 +46,22 @@ import static org.dromara.easyes.common.constants.BaseEsConstants.DEFAULT_SCHEMA
 public class EsAutoConfiguration {
     @Autowired
     private EasyEsConfigProperties easyEsConfigProperties;
+
+    @PostConstruct
+    public void init() {
+        int bufferLimit = easyEsConfigProperties.getBufferLimit();
+        // 非默认值
+        if (DEFAULT_BUFFER_LIMIT != bufferLimit) {
+            // 设置es查询buffer大小
+            Optional.ofNullable(
+                    ReflectionUtils.findField(RequestOptions.class, "httpAsyncResponseConsumerFactory"))
+                .ifPresent(field -> {
+                    ReflectionUtils.makeAccessible(field);
+                    ReflectionUtils.setField(field, RequestOptions.DEFAULT,
+                        new HeapBufferedResponseConsumerFactory(bufferLimit));
+                });
+        }
+    }
 
     /**
      * 装配RestHighLevelClient

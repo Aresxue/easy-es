@@ -1,5 +1,7 @@
 package org.dromara.easyes.starter.config;
 
+import static org.dromara.easyes.common.constants.BaseEsConstants.DEFAULT_BUFFER_LIMIT;
+
 import org.dromara.easyes.core.config.GlobalConfig;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -73,4 +75,8 @@ public class EasyEsConfigProperties {
      */
     @NestedConfigurationProperty
     private GlobalConfig globalConfig = new GlobalConfig();
+    /**
+     * exception: entity content is too long [*] for the configured buffer limit [*]
+     */
+    private Integer bufferLimit = DEFAULT_BUFFER_LIMIT;
 }

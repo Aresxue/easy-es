@@ -249,4 +249,9 @@ public interface BaseEsConstants {
      * 缩放因子索引字段名称
      */
     String SCALING_FACTOR_FIELD = "scaling_factor";
+    /**
+     * es初始化的读取到内存的数据大小限制
+     * @see org.elasticsearch.client.HttpAsyncResponseConsumerFactory.HeapBufferedResponseConsumerFactory#DEFAULT_BUFFER_LIMIT
+     */
+    int DEFAULT_BUFFER_LIMIT = 104857600;
 }
